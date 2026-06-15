@@ -1,0 +1,13 @@
+target/
+.env
+*.env
+serviceAccountKey.json
+*serviceAccount*.json
+*.class
+.idea/
+*.iml
+.DS_Store
+*.log
+/logs
+.mvn/wrapper/maven-wrapper.jar
+!.mvn/wrapper/maven-wrapper.properties

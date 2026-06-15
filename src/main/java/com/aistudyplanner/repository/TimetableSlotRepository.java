@@ -1,0 +1,18 @@
+package com.aistudyplanner.repository;
+
+import com.aistudyplanner.model.entity.TimetableSlot;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+import java.util.UUID;
+
+@Repository
+public interface TimetableSlotRepository extends JpaRepository<TimetableSlot, UUID> {
+
+    List<TimetableSlot> findAllByTimetableId(UUID timetableId);
+
+    List<TimetableSlot> findAllByTimetableIdAndDayOfWeek(UUID timetableId, int dayOfWeek);
+
+    long countByTimetableIdAndIsCompleted(UUID timetableId, boolean isCompleted);
+}
