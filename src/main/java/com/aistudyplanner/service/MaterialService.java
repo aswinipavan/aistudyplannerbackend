@@ -11,6 +11,7 @@ import com.aistudyplanner.repository.StudentRepository;
 import com.aistudyplanner.repository.SubjectRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +26,9 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Slf4j
 public class MaterialService {
+
+    @Value("${supabase.url}")
+    private String supabaseUrl;
 
     private final MaterialRepository materialRepository;
     private final SubjectRepository subjectRepository;
@@ -92,8 +96,8 @@ public class MaterialService {
 
     public Map<String, String> getStorageUploadUrl(UUID studentId, String fileName) {
         String filePath = "materials/" + studentId + "/" + System.currentTimeMillis() + "_" + fileName;
-        String uploadUrl = "https://your-supabase-url.supabase.co/storage/v1/object/materials/" + filePath;
-        String publicUrl = "https://your-supabase-url.supabase.co/storage/v1/object/public/materials/" + filePath;
+        String uploadUrl = supabaseUrl + "/storage/v1/object/materials/" + filePath;
+        String publicUrl = supabaseUrl + "/storage/v1/object/public/materials/" + filePath;
 
         Map<String, String> response = new HashMap<>();
         response.put("uploadUrl", uploadUrl);
