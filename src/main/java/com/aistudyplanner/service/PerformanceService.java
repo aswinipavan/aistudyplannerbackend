@@ -22,8 +22,6 @@ public class PerformanceService {
 
     private final MarksRepository marksRepository;
     private final SubjectRepository subjectRepository;
-    private final TimetableSlotRepository timetableSlotRepository;
-    private final ExamRepository examRepository;
     private final StudentRepository studentRepository;
     private final PerformanceSnapshotRepository snapshotRepository;
 
@@ -65,7 +63,7 @@ public class PerformanceService {
 
         double overallPercentage = subjectCount > 0 ? (totalWeightedAvg / subjectCount) : 0.0;
         
-        long completedTasksThisWeek = 0; 
+        // Optional: you can query completedTasksThisWeek later
 
         List<String> recommendations = new ArrayList<>();
         for (SubjectResponse weak : weakSubjects) {

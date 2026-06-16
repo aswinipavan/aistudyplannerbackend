@@ -13,5 +13,9 @@ public interface TimetableRepository extends JpaRepository<Timetable, UUID> {
 
     Optional<Timetable> findByStudentIdAndIsActive(UUID studentId, boolean isActive);
 
+    Optional<Timetable> findByStudentIdAndIsActiveTrue(UUID studentId);
+
+    List<Timetable> findAllByStudentId(UUID studentId);
+
     List<Timetable> findAllByStudentIdOrderByCreatedAtDesc(UUID studentId);
 }

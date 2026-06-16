@@ -10,7 +10,7 @@ import java.util.UUID;
 @Repository
 public interface MaterialRepository extends JpaRepository<Material, UUID> {
 
-    List<Material> findAllByStudentIdOrderByUploadDateDesc(UUID studentId);
+    List<Material> findAllByStudentIdOrderByCreatedAtDesc(UUID studentId);
 
     List<Material> findAllByStudentIdAndSubjectId(UUID studentId, UUID subjectId);
 }

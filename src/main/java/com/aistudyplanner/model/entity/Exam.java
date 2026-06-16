@@ -49,6 +49,7 @@ public class Exam {
     @Column(name = "syllabus_covered", columnDefinition = "TEXT")
     private String syllabusCovered;
 
+    @Builder.Default
     @Column(name = "is_completed")
     private Boolean isCompleted = false;
 

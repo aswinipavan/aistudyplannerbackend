@@ -104,7 +104,7 @@ public class MaterialService {
 
     @Transactional(readOnly = true)
     public List<MaterialResponse> getMaterials(UUID studentId) {
-        return materialRepository.findAllByStudentId(studentId).stream()
+        return materialRepository.findAllByStudentIdOrderByCreatedAtDesc(studentId).stream()
                 .map(this::toMaterialResponse).collect(Collectors.toList());
     }
 
@@ -131,11 +131,13 @@ public class MaterialService {
                 .id(material.getId())
                 .subject(StudentMapper.toSubjectResponse(material.getSubject()))
                 .title(material.getTitle())
+                .fileName(material.getFileName())
                 .fileUrl(material.getFileUrl())
                 .fileType(material.getFileType())
-                .fileSizeBytes(material.getFileSizeBytes())
                 .materialType(material.getMaterialType())
+                .fileSizeBytes(material.getFileSizeBytes())
                 .aiSummary(material.getAiSummary())
+                .aiCategorizedSubject(material.getAiCategorizedSubject())
                 .uploadedAt(material.getCreatedAt())
                 .build();
     }

@@ -2,7 +2,6 @@ package com.aistudyplanner.model.dto.response;
 
 import lombok.*;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.UUID;
 
@@ -17,7 +16,7 @@ public class ExamResponse {
     private String examName;
     private LocalDate examDate;
     private String examType;
-    private BigDecimal durationHours;
-    private Long daysRemaining;
+    private String syllabusCovered;
+    private long daysRemaining;
     private Boolean isCompleted;
 }

@@ -9,7 +9,6 @@ import com.aistudyplanner.model.entity.Student;
 import com.aistudyplanner.model.entity.Subject;
 import com.aistudyplanner.repository.StudentRepository;
 import com.aistudyplanner.repository.SubjectRepository;
-import com.aistudyplanner.repository.SubscriptionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,7 +23,6 @@ public class StudentService {
 
     private final StudentRepository studentRepository;
     private final SubjectRepository subjectRepository;
-    private final SubscriptionRepository subscriptionRepository;
 
     @Transactional(readOnly = true)
     public StudentResponse getProfile(UUID studentId) {

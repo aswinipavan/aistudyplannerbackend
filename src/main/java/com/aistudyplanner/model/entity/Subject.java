@@ -37,6 +37,7 @@ public class Subject {
     @Column(name = "credits")
     private Integer credits;
 
+    @Builder.Default
     @Column(name = "difficulty_level")
     private Integer difficultyLevel = 3;
 

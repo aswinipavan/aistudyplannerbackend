@@ -45,6 +45,7 @@ public class TimetableSlot {
     @Column(name = "topic", length = 200)
     private String topic;
 
+    @Builder.Default
     @Column(name = "is_completed")
     private Boolean isCompleted = false;
 

@@ -12,6 +12,8 @@ public interface TimetableSlotRepository extends JpaRepository<TimetableSlot, UU
 
     List<TimetableSlot> findAllByTimetableId(UUID timetableId);
 
+    List<TimetableSlot> findAllByTimetableIdOrderByDayOfWeekAscStartTimeAsc(UUID timetableId);
+
     List<TimetableSlot> findAllByTimetableIdAndDayOfWeek(UUID timetableId, int dayOfWeek);
 
     long countByTimetableIdAndIsCompleted(UUID timetableId, boolean isCompleted);

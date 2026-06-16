@@ -32,15 +32,21 @@ public class Material {
     @EqualsAndHashCode.Exclude
     private Subject subject;
 
+    @Column(name = "title", length = 200)
+    private String title;
+
     @Column(name = "file_name", length = 255)
     private String fileName;
 
     @Column(name = "file_url", columnDefinition = "TEXT")
     private String fileUrl;
 
-    @Enumerated(EnumType.STRING)
     @Column(name = "file_type", length = 50)
-    private MaterialType fileType;
+    private String fileType;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "material_type", length = 50)
+    private MaterialType materialType;
 
     @Column(name = "file_size_bytes")
     private Long fileSizeBytes;
@@ -51,13 +57,13 @@ public class Material {
     @Column(name = "ai_categorized_subject", length = 100)
     private String aiCategorizedSubject;
 
-    @Column(name = "upload_date")
-    private OffsetDateTime uploadDate;
+    @Column(name = "created_at")
+    private OffsetDateTime createdAt;
 
     @PrePersist
     public void prePersist() {
-        if (uploadDate == null) {
-            uploadDate = OffsetDateTime.now();
+        if (createdAt == null) {
+            createdAt = OffsetDateTime.now();
         }
     }
 }

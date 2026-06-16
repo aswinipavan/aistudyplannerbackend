@@ -14,5 +14,11 @@ public class MaterialUploadRequest {
 
     private UUID subjectId; // optional
 
+    private String title;
+    
     private String fileName;
+    
+    private String textPreview;
+    
+    private com.aistudyplanner.model.MaterialType materialType;
 }

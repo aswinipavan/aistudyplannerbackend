@@ -13,11 +13,14 @@ import java.util.UUID;
 public class MaterialResponse {
 
     private UUID id;
+    private SubjectResponse subject;
+    private String title;
     private String fileName;
     private String fileUrl;
-    private MaterialType fileType;
+    private String fileType;
+    private MaterialType materialType;
     private Long fileSizeBytes;
     private String aiSummary;
     private String aiCategorizedSubject;
-    private OffsetDateTime uploadDate;
+    private OffsetDateTime uploadedAt;
 }

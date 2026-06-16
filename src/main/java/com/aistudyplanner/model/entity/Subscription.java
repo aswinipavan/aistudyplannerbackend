@@ -44,6 +44,7 @@ public class Subscription {
     @Column(name = "amount_paise")
     private Integer amountPaise;
 
+    @Builder.Default
     @Column(name = "currency", length = 10)
     private String currency = "INR";
 

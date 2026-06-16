@@ -10,7 +10,7 @@ import java.time.OffsetDateTime;
 @AllArgsConstructor
 public class AiChatResponse {
 
-    private String message;
+    private String reply;      // AI response text
     private String sessionId;
     private OffsetDateTime timestamp;
 }

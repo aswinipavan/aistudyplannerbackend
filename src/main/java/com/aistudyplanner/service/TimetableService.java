@@ -16,18 +16,15 @@ import com.aistudyplanner.repository.StudentRepository;
 import com.aistudyplanner.repository.SubjectRepository;
 import com.aistudyplanner.repository.TimetableRepository;
 import com.aistudyplanner.repository.TimetableSlotRepository;
-import com.aistudyplanner.util.AiPromptBuilder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -121,34 +118,32 @@ public class TimetableService {
         List<TimetableSlot> slotsToSave = new ArrayList<>();
         
         for (int dayIndex = 0; dayIndex < 7; dayIndex++) {
-            DayOfWeek day = DayOfWeek.values()[dayIndex];
             LocalTime currentTime = LocalTime.of(18, 0);
-            
-            boolean isSunday = day == DayOfWeek.SUNDAY;
+
+            boolean isSunday = (dayIndex == 6);
             double dayMultiplier = isSunday ? 0.5 : 1.0;
 
             for (Subject subject : subjects) {
                 int subjectMinutes = (int) (allocatedMinutesMap.get(subject.getId()) * dayMultiplier);
                 if (subjectMinutes <= 0) continue;
 
-                long daysToExam = 30; 
+                long daysToExam = 30;
                 double avg = subjectAverages.getOrDefault(subject.getId(), 50.0);
 
-                String prompt = AiPromptBuilder.buildTopicSuggestionPrompt(subject.getSubjectName(), avg, subjectMinutes, (int) daysToExam);
-                String topic = groqService.generateTopicSuggestion(subject.getSubjectName(), avg, subjectMinutes, (int) daysToExam);
+                String topicSuggestion = groqService.generateTopicSuggestion(subject.getSubjectName(), avg, subjectMinutes, (int) daysToExam);
 
                 TimetableSlot slot = TimetableSlot.builder()
                         .timetable(timetable)
                         .subject(subject)
-                        .dayOfWeek(day)
+                        .dayOfWeek(dayIndex)
                         .startTime(currentTime)
                         .endTime(currentTime.plusMinutes(subjectMinutes))
-                        .suggestedTopic(topic)
+                        .topic(topicSuggestion)
                         .isCompleted(false)
                         .build();
 
                 slotsToSave.add(slot);
-                
+
                 currentTime = currentTime.plusMinutes(subjectMinutes + 10);
             }
         }
@@ -206,7 +201,7 @@ public class TimetableService {
         if (request.getDayOfWeek() != null) slot.setDayOfWeek(request.getDayOfWeek());
         if (request.getStartTime() != null) slot.setStartTime(request.getStartTime());
         if (request.getEndTime() != null) slot.setEndTime(request.getEndTime());
-        if (request.getSuggestedTopic() != null) slot.setSuggestedTopic(request.getSuggestedTopic());
+        if (request.getTopic() != null) slot.setTopic(request.getTopic());
 
         slot = timetableSlotRepository.save(slot);
         return toSlotResponse(slot);
@@ -262,13 +257,13 @@ public class TimetableService {
     private SlotResponse toSlotResponse(TimetableSlot slot) {
         return SlotResponse.builder()
                 .id(slot.getId())
-                .subjectId(slot.getSubject() != null ? slot.getSubject().getId() : null)
-                .subjectName(slot.getSubject() != null ? slot.getSubject().getSubjectName() : null)
+                .subject(StudentMapper.toSubjectResponse(slot.getSubject()))
                 .dayOfWeek(slot.getDayOfWeek())
                 .startTime(slot.getStartTime())
                 .endTime(slot.getEndTime())
-                .suggestedTopic(slot.getSuggestedTopic())
+                .topic(slot.getTopic())
                 .isCompleted(slot.getIsCompleted())
+                .notes(slot.getNotes())
                 .build();
     }
 }

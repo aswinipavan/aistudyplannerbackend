@@ -12,5 +12,10 @@ public interface ChatHistoryRepository extends JpaRepository<ChatHistory, UUID> 
 
     List<ChatHistory> findAllByStudentIdAndSessionIdOrderByCreatedAtAsc(UUID studentId, String sessionId);
 
+    // Alias without "All" prefix for service compatibility
+    default List<ChatHistory> findByStudentIdAndSessionIdOrderByCreatedAtAsc(UUID studentId, String sessionId) {
+        return findAllByStudentIdAndSessionIdOrderByCreatedAtAsc(studentId, sessionId);
+    }
+
     List<ChatHistory> findTop20ByStudentIdOrderByCreatedAtDesc(UUID studentId);
 }

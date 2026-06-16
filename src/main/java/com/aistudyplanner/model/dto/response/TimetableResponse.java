@@ -3,6 +3,7 @@ package com.aistudyplanner.model.dto.response;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -18,4 +19,5 @@ public class TimetableResponse {
     private Boolean isAiGenerated;
     private Boolean isActive;
     private List<SlotResponse> slots;
+    private OffsetDateTime createdAt;
 }

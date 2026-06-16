@@ -35,9 +35,11 @@ public class Timetable {
     @Column(name = "week_start_date")
     private LocalDate weekStartDate;
 
+    @Builder.Default
     @Column(name = "is_ai_generated")
     private Boolean isAiGenerated = true;
 
+    @Builder.Default
     @Column(name = "is_active")
     private Boolean isActive = true;
 

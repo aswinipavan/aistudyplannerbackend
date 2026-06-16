@@ -42,7 +42,7 @@ public class ExamService {
                 .subject(subject)
                 .examDate(request.getExamDate())
                 .examType(request.getExamType())
-                .syllabus(request.getSyllabus())
+                .syllabusCovered(request.getSyllabusCovered())
                 .isCompleted(false)
                 .build();
 
@@ -52,7 +52,7 @@ public class ExamService {
 
     @Transactional(readOnly = true)
     public List<ExamResponse> getUpcomingExams(UUID studentId) {
-        return examRepository.findUpcomingExams(studentId).stream()
+        return examRepository.findUpcomingExams(studentId, LocalDate.now()).stream()
                 .map(this::toExamResponse)
                 .collect(Collectors.toList());
     }
@@ -75,7 +75,7 @@ public class ExamService {
 
         if (request.getExamDate() != null) exam.setExamDate(request.getExamDate());
         if (request.getExamType() != null) exam.setExamType(request.getExamType());
-        if (request.getSyllabus() != null) exam.setSyllabus(request.getSyllabus());
+        if (request.getSyllabusCovered() != null) exam.setSyllabusCovered(request.getSyllabusCovered());
 
         exam = examRepository.save(exam);
         return toExamResponse(exam);
@@ -130,9 +130,9 @@ public class ExamService {
                 .subject(StudentMapper.toSubjectResponse(exam.getSubject()))
                 .examDate(exam.getExamDate())
                 .examType(exam.getExamType())
-                .syllabus(exam.getSyllabus())
+                .syllabusCovered(exam.getSyllabusCovered())
                 .isCompleted(exam.getIsCompleted())
-                .daysRemaining((int) daysRemaining)
+                .daysRemaining(daysRemaining)
                 .build();
     }
 }

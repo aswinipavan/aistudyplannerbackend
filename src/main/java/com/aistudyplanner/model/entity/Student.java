@@ -46,12 +46,15 @@ public class Student {
     @Column(name = "department", length = 100)
     private String department;
 
+    @Builder.Default
     @Column(name = "available_hours_per_day", precision = 4, scale = 1)
     private BigDecimal availableHoursPerDay = BigDecimal.valueOf(4.0);
 
+    @Builder.Default
     @Column(name = "is_premium")
     private Boolean isPremium = false;
 
+    @Builder.Default
     @Column(name = "study_streak")
     private Integer studyStreak = 0;
 
