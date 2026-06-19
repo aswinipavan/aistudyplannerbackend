@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "217274229428",
+    "project_id": "study-planner-ec1d2",
+    "storage_bucket": "study-planner-ec1d2.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:217274229428:android:bb20015e1d7f6e50e6ede1",
+        "android_client_info": {
+          "package_name": "com.study.planner"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "217274229428-pqi9jod2s38o26nsjhs49naril3e3rv8.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.study.planner",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
+          "client_id": "217274229428-70ihbsrjg60cc4hld7ktskg3h999jqo5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyACS6KuWHYDtZOVW-GkxGo038JFmKonlSc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "217274229428-70ihbsrjg60cc4hld7ktskg3h999jqo5.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
