@@ -1,7 +1,12 @@
+import { apiClient } from './client';
+
 export const notificationsApi = {
+  /**
+   * Sends the FCM device token to the backend so the server can send
+   * push notifications to this device.
+   * Backend endpoint: POST /api/notifications/fcm-token
+   */
   registerFcmToken: async (token: string): Promise<void> => {
-    // Mock successful registration with the backend
-    console.log('[notifications.api.ts] Registered FCM token with backend:', token);
-    await new Promise<void>(resolve => setTimeout(() => resolve(), 500));
+    await apiClient.post<any>('/api/notifications/fcm-token', { fcmToken: token });
   },
 };

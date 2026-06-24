@@ -9,6 +9,8 @@ import { PriorityScreen } from '../features/profile/PriorityScreen';
 import { SubscriptionScreen } from '../features/profile/SubscriptionScreen';
 import { SettingsScreen } from '../features/profile/SettingsScreen';
 
+import { AnalyticsScreen } from '../features/performance/AnalyticsScreen';
+
 const Stack = createNativeStackNavigator<ProfileStackParamList>();
 
 export const ProfileStackNavigator = () => (
@@ -16,6 +18,7 @@ export const ProfileStackNavigator = () => (
     <Stack.Screen name="ProfileHome" component={ProfileScreen} />
     <Stack.Screen name="Exams" component={ExamsScreen} />
     <Stack.Screen name="Performance" component={PerformanceScreen} />
+    <Stack.Screen name="Analytics" component={AnalyticsScreen} options={{ title: 'Advanced Analytics' }} />
     <Stack.Screen name="AddMark" component={AddMarkScreen} options={{ title: 'Add Test Score' }} />
     <Stack.Screen name="Priority" component={PriorityScreen} />
     <Stack.Screen name="Subscription" component={SubscriptionScreen} />

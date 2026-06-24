@@ -25,23 +25,66 @@ export interface DashboardData {
 
 export const dashboardApi = {
   getOverview: async (): Promise<DashboardData> => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve({
-          activeTasks: [
-            { id: 't1', title: 'Calculus Chapter 4', subjectName: 'Mathematics', subjectColor: '#FF5722', time: '10:00 AM - 11:30 AM', isCompleted: false },
-            { id: 't2', title: 'Kinematics Problems', subjectName: 'Physics', subjectColor: '#2196F3', time: '12:00 PM - 01:00 PM', isCompleted: false },
-          ],
-          upcomingExams: [
-            { id: 'e1', title: 'Math Midterm', date: '2026-06-25', daysRemaining: 8 },
-            { id: 'e2', title: 'Physics Quiz', date: '2026-06-30', daysRemaining: 13 },
-          ],
-          prioritySubjects: [
-            { id: '2', name: 'Physics', color: '#2196F3', totalHoursStudied: 8.0, priorityScore: 92, studentId: 'u1' },
-            { id: '1', name: 'Mathematics', color: '#FF5722', totalHoursStudied: 12.5, priorityScore: 85, studentId: 'u1' },
-          ]
-        });
-      }, 1000);
-    });
-  }
+    try {
+      const [timetableRes, examsRes, performanceRes] = await Promise.all([
+        apiClient.get<any>('/api/timetable/active').catch(() => ({ data: { data: { slots: [] } } })),
+        apiClient.get<any>('/api/exams/upcoming').catch(() => ({ data: { data: [] } })),
+        apiClient.get<any>('/api/performance/priority').catch(() => ({ data: { data: [] } }))
+      ]);
+
+      const timetableSlots = timetableRes.data.data?.slots || [];
+      const upcomingExamsData = examsRes.data.data || [];
+      const prioritySubjectsData = performanceRes.data.data || [];
+
+      // Map active tasks from timetable slots
+      const activeTasks: ActiveTask[] = timetableSlots.map((slot: any) => ({
+        id: slot.id,
+        title: slot.subject?.subjectName ? `Study ${slot.subject.subjectName}` : 'Study Session',
+        subjectName: slot.subject?.subjectName || 'Subject',
+        subjectColor: slot.subject?.color || '#2196F3',
+        time: `${slot.startTime ? slot.startTime.substring(0, 5) : '09:00'} - ${slot.endTime ? slot.endTime.substring(0, 5) : '10:00'}`,
+        isCompleted: !!slot.isCompleted
+      }));
+
+      // Map upcoming exams
+      const upcomingExams: UpcomingExam[] = upcomingExamsData.map((exam: any) => ({
+        id: exam.id,
+        title: exam.examName || (exam.subject?.subjectName ? `${exam.subject.subjectName} Exam` : 'Exam'),
+        date: exam.examDate,
+        daysRemaining: exam.daysRemaining || 0
+      }));
+
+      // Map priority subjects
+      const prioritySubjects: Subject[] = prioritySubjectsData.map((sub: any) => ({
+        id: sub.id,
+        name: sub.subjectName,
+        color: sub.color || '#2196F3',
+        icon: sub.icon || 'book',
+        studentId: '',
+        totalHoursStudied: 0,
+        priorityScore: sub.difficultyLevel ? sub.difficultyLevel * 20 : 50
+      }));
+
+      return {
+        activeTasks,
+        upcomingExams,
+        prioritySubjects
+      };
+    } catch (error) {
+      console.error("Failed to fetch dashboard data from backend", error);
+      return {
+        activeTasks: [],
+        upcomingExams: [],
+        prioritySubjects: []
+      };
+    }
+  },
+
+  /**
+   * Marks a timetable slot (task) as completed on the backend.
+   */
+  completeTask: async (slotId: string): Promise<void> => {
+    await apiClient.patch<any>(`/api/timetable/slots/${slotId}/complete`);
+  },
 };
+

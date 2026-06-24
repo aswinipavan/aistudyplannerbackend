@@ -20,3 +20,24 @@ buildscript {
 }
 
 apply plugin: "com.facebook.react.rootproject"
+
+subprojects {
+    def configureProject = { proj ->
+        if (proj.hasProperty("android")) {
+            try {
+                proj.android.externalNativeBuild.cmake.buildStagingDirectory = "C:/Users/aswin/cxx/${proj.name}"
+            } catch (Exception e) {
+                // Ignore modules that do not configure CMake external builds
+            }
+        }
+    }
+
+    if (project.state.executed) {
+        configureProject(project)
+    } else {
+        project.afterEvaluate {
+            configureProject(project)
+        }
+    }
+}
+

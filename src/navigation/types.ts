@@ -11,6 +11,7 @@ export type TimetableStackParamList = {
   TimetableList: undefined; // To match TimetableScreen
   GenerateTimetable: undefined;
   StudySlotDetail: undefined;
+  StudyTimer: { subjectId?: string; subjectName?: string };
 };
 
 export type SubjectsStackParamList = {
@@ -22,13 +23,14 @@ export type SubjectsStackParamList = {
 
 export type AITutorStackParamList = {
   ChatSessions: undefined;
-  Chat: undefined;
+  Chat: { sessionId: string };
 };
 
 export type ProfileStackParamList = {
   ProfileHome: undefined;
   Exams: undefined;
   Performance: undefined;
+  Analytics: undefined;
   AddMark: undefined;
   Priority: undefined;
   Subscription: undefined;

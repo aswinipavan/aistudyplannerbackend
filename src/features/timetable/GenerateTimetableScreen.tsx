@@ -13,6 +13,7 @@ export const GenerateTimetableScreen = () => {
   const [availableHours, setAvailableHours] = useState(4);
   const [style, setStyle] = useState<'intense' | 'balanced' | 'relaxed'>('balanced');
   const [selectedSubjects, setSelectedSubjects] = useState<string[]>([]);
+  const [durationDays, setDurationDays] = useState(7);
 
   const handleGenerate = () => {
     if (selectedSubjects.length === 0) return;
@@ -22,7 +23,7 @@ export const GenerateTimetableScreen = () => {
       style,
       subjectIds: selectedSubjects,
       startDate: new Date().toISOString().split('T')[0],
-      durationDays: 7, // Default 1 week
+      durationDays,
     }, {
       onSuccess: () => {
         // Navigate to Timetable tab/screen
@@ -60,12 +61,27 @@ export const GenerateTimetableScreen = () => {
         <Text style={styles.sectionTitle}>Study Style</Text>
         <View style={styles.styleRow}>
           {(['intense', 'balanced', 'relaxed'] as const).map(s => (
-            <TouchableOpacity 
-              key={s} 
+            <TouchableOpacity
+              key={s}
               style={[styles.styleChip, style === s && styles.chipActive]}
               onPress={() => setStyle(s)}
             >
               <Text style={[styles.chipText, style === s && styles.chipTextActive]}>{s}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      </View>
+
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Duration: {durationDays} days</Text>
+        <View style={styles.hoursRow}>
+          {[3, 5, 7, 14].map(d => (
+            <TouchableOpacity
+              key={d}
+              style={[styles.hourChip, durationDays === d && styles.chipActive]}
+              onPress={() => setDurationDays(d)}
+            >
+              <Text style={[styles.chipText, durationDays === d && styles.chipTextActive]}>{d}d</Text>
             </TouchableOpacity>
           ))}
         </View>

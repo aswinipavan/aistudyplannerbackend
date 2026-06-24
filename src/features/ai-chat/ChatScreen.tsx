@@ -1,8 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, FlatList, KeyboardAvoidingView, Platform } from 'react-native';
+import { useRoute, RouteProp } from '@react-navigation/native';
 import { Theme } from '../../theme';
 import { chatApi } from '../../api/chat.api';
 import { ChatMessage } from '../../types/api.types';
+import { AITutorStackParamList } from '../../navigation/types';
+
+type ChatRoute = RouteProp<AITutorStackParamList, 'Chat'>;
 
 const TypingIndicator = () => {
   return (
@@ -13,10 +17,12 @@ const TypingIndicator = () => {
 };
 
 export const ChatScreen = () => {
+  const route = useRoute<ChatRoute>();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputText, setInputText] = useState('');
   const [isThinking, setIsThinking] = useState(false);
-  const [sessionId, setSessionId] = useState('session-1');
+  // Use sessionId from navigation params; backend may return a canonical ID on first message
+  const [sessionId, setSessionId] = useState(route.params.sessionId);
   const flatListRef = useRef<FlatList>(null);
 
   useEffect(() => {
@@ -45,8 +51,12 @@ export const ChatScreen = () => {
     setTimeout(() => flatListRef.current?.scrollToEnd({ animated: true }), 100);
 
     try {
-      const res = await chatApi.sendMessage(userMsg.content, sessionId);
+      const res = await chatApi.sendMessage(userMsg.content, sessionId, messages);
       setMessages(prev => [...prev, res.message]);
+      // Sync to backend's canonical session ID (in case it assigned a new one)
+      if (res.sessionId && res.sessionId !== sessionId) {
+        setSessionId(res.sessionId);
+      }
     } catch (e) {
       console.error(e);
     } finally {

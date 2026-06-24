@@ -3,16 +3,16 @@ import { View, Text, StyleSheet, ScrollView, ActivityIndicator, TouchableOpacity
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ProfileStackParamList } from '../../navigation/types';
-import { ProgressCircle, BarChart, LineChart, Grid } from 'react-native-svg-charts';
-import { usePerformanceReport, useStudyPriorities } from './hooks/usePerformance';
+import { ProgressCircle } from 'react-native-svg-charts';
+import { usePerformanceReport } from './hooks/usePerformance';
 import { Theme } from '../../theme';
+import { SubjectPerformance } from '../../types/api.types';
 
 export const PerformanceScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<ProfileStackParamList, 'Performance'>>();
   const { data: report, isLoading: reportLoading } = usePerformanceReport();
-  const { data: priorities, isLoading: prioritiesLoading } = useStudyPriorities();
 
-  if (reportLoading || prioritiesLoading) {
+  if (reportLoading) {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color={Theme.light.colors.primary} />
@@ -22,101 +22,114 @@ export const PerformanceScreen = () => {
 
   if (!report) return null;
 
-  // Data for charts
-  const barData = report.subjectBreakdown.map(s => ({
-    value: s.averageScore,
-    svg: { fill: Theme.light.colors.primary },
-    key: s.subjectId,
-    label: s.subjectName
-  }));
+  const strongSubjects = report.subjectBreakdown.filter(s => s.status === 'Strong');
+  const averageSubjects = report.subjectBreakdown.filter(s => s.status === 'Average');
+  const weakSubjects = report.subjectBreakdown.filter(s => s.status === 'Weak');
 
-  // Mock trend data
-  const lineData = [50, 60, 55, 70, 75, 82, 85];
+  const renderSubjectCard = (subject: SubjectPerformance) => {
+    let statusColor = Theme.light.colors.primary;
+    if (subject.status === 'Weak') statusColor = Theme.light.colors.error;
+    if (subject.status === 'Average') statusColor = '#FF9800';
+
+    return (
+      <View key={subject.subjectId} style={styles.subjectCard}>
+        <View style={styles.cardHeader}>
+          <Text style={styles.subjectName}>{subject.subjectName}</Text>
+          <View style={[styles.statusBadge, { backgroundColor: statusColor + '20' }]}>
+            <Text style={[styles.statusText, { color: statusColor }]}>{subject.status}</Text>
+          </View>
+        </View>
+        
+        <View style={styles.metricsRow}>
+          <View style={styles.metricItem}>
+            <Text style={styles.metricLabel}>Priority Score</Text>
+            <Text style={[styles.metricValue, { color: statusColor }]}>{subject.priorityScore}</Text>
+          </View>
+          <View style={styles.metricItem}>
+            <Text style={styles.metricLabel}>Avg Score</Text>
+            <Text style={styles.metricValue}>{subject.averageScore}%</Text>
+          </View>
+          <View style={styles.metricItem}>
+            <Text style={styles.metricLabel}>Study Target</Text>
+            <Text style={styles.metricValue}>{subject.suggestedStudyHours}h/day</Text>
+          </View>
+        </View>
+
+        <View style={styles.recommendationBox}>
+          <Text style={styles.recommendationText}>🤖 {subject.aiRecommendation}</Text>
+        </View>
+      </View>
+    );
+  };
 
   return (
     <ScrollView style={styles.container}>
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Theme.light.spacing.xl }}>
-        <Text style={[styles.header, { marginBottom: 0 }]}>Performance Dashboard</Text>
-        <TouchableOpacity onPress={() => navigation.navigate('AddMark')} style={{ backgroundColor: Theme.light.colors.primary + '20', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 16 }}>
-          <Text style={{ color: Theme.light.colors.primary, fontWeight: 'bold' }}>+ Add Score</Text>
+      <View style={styles.headerRow}>
+        <Text style={styles.header}>AI Subject Analysis</Text>
+        <TouchableOpacity 
+          onPress={() => navigation.navigate('AddMark')} 
+          style={styles.addScoreButton}
+        >
+          <Text style={styles.addScoreText}>+ Add Score</Text>
         </TouchableOpacity>
       </View>
       
-      {/* 1. Overall average score: Circular progress ring */}
-      <View style={styles.widget}>
-        <Text style={styles.widgetTitle}>Overall Average</Text>
-        <ProgressCircle
-          style={{ height: 150 }}
-          progress={report.overallAverage / 100}
-          progressColor={Theme.light.colors.primary}
-          backgroundColor={Theme.light.colors.background}
-          strokeWidth={15}
-        />
-        <View style={styles.centerTextContainer}>
-          <Text style={styles.centerText}>{report.overallAverage}%</Text>
-        </View>
-      </View>
-
-      {/* 2. Subject scores comparison: Horizontal bar chart */}
-      <View style={styles.widget}>
-        <Text style={styles.widgetTitle}>Subject Comparison</Text>
-        <View style={{ height: 200, flexDirection: 'row' }}>
-          <View style={{ flex: 1, justifyContent: 'space-around', paddingVertical: 10 }}>
-            {barData.map((d, index) => (
-              <Text key={index} style={{ fontSize: 10, color: Theme.light.colors.text }}>{d.label}</Text>
-            ))}
+      {/* AI Readiness Score Hero */}
+      <View style={styles.heroWidget}>
+        <Text style={styles.widgetTitle}>AI Readiness Score</Text>
+        <View style={styles.progressContainer}>
+          <ProgressCircle
+            style={{ height: 150 }}
+            progress={(report.aiReadinessScore || 0) / 100}
+            progressColor={Theme.light.colors.primary}
+            backgroundColor={Theme.light.colors.background}
+            strokeWidth={15}
+          />
+          <View style={styles.centerTextContainer}>
+            <Text style={styles.centerText}>{report.aiReadinessScore || 0}%</Text>
+            <Text style={styles.centerLabel}>Ready</Text>
           </View>
-          <BarChart
-            style={{ flex: 3 }}
-            data={barData}
-            horizontal={true}
-            yAccessor={({ item }: { item: any }) => item.value}
-            svg={{ fill: Theme.light.colors.primary }}
-            contentInset={{ top: 10, bottom: 10 }}
-            spacingInner={0.2}
-            gridMin={0}
-            gridMax={100}
-          >
-            <Grid direction={Grid.Direction.VERTICAL} />
-          </BarChart>
         </View>
       </View>
 
-      {/* 3. Score trend over time: Line chart */}
-      <View style={styles.widget}>
-        <Text style={styles.widgetTitle}>Score Trend</Text>
-        <LineChart
-          style={{ height: 150 }}
-          data={lineData}
-          svg={{ stroke: Theme.light.colors.primary, strokeWidth: 3 }}
-          contentInset={{ top: 20, bottom: 20 }}
-        >
-          <Grid />
-        </LineChart>
-      </View>
+      {/* Weak Subjects Section */}
+      {weakSubjects.length > 0 && (
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle, { color: Theme.light.colors.error }]}>Critical Focus (Weak)</Text>
+          {weakSubjects.map(renderSubjectCard)}
+        </View>
+      )}
 
-      {/* 4. Study priority ranking: Ranked card list */}
+      {/* Average Subjects Section */}
+      {averageSubjects.length > 0 && (
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle, { color: '#FF9800' }]}>Steady Progress (Average)</Text>
+          {averageSubjects.map(renderSubjectCard)}
+        </View>
+      )}
+
+      {/* Strong Subjects Section */}
+      {strongSubjects.length > 0 && (
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle, { color: Theme.light.colors.primary }]}>Mastered (Strong)</Text>
+          {strongSubjects.map(renderSubjectCard)}
+        </View>
+      )}
+
+      {/* Overall AI Improvement Suggestions */}
       <View style={styles.widget}>
-        <Text style={styles.widgetTitle}>Priority Rankings</Text>
-        {priorities?.map((p, index) => (
-          <View key={p.subjectId} style={styles.priorityCard}>
-            <View style={styles.rankBadge}>
-              <Text style={styles.rankText}>#{index + 1}</Text>
+        <Text style={styles.widgetTitle}>Overall AI Suggestions</Text>
+        {report.recommendations.length > 0 ? (
+          report.recommendations.map((rec, index) => (
+            <View key={index} style={styles.recCard}>
+              <Text style={styles.recText}>✨ {rec}</Text>
             </View>
-            <Text style={styles.priorityName}>{p.subjectName}</Text>
-            <Text style={styles.priorityScore}>Avg: {p.averageScore}%</Text>
+          ))
+        ) : (
+          <View style={styles.recCard}>
+            <Text style={styles.recText}>✨ Keep maintaining your current study streak. Your profile is balanced.</Text>
           </View>
-        ))}
-      </View>
-
-      {/* 5. AI recommendations: Styled text cards */}
-      <View style={styles.widget}>
-        <Text style={styles.widgetTitle}>AI Recommendations</Text>
-        {report.recommendations.map((rec, index) => (
-          <View key={index} style={styles.recCard}>
-            <Text style={styles.recText}>✨ {rec}</Text>
-          </View>
-        ))}
+        )}
       </View>
 
       <View style={{ height: 40 }} />
@@ -135,10 +148,133 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  headerRow: {
+    flexDirection: 'row', 
+    justifyContent: 'space-between', 
+    alignItems: 'center', 
+    marginBottom: Theme.light.spacing.xl 
+  },
   header: {
     ...Theme.light.typography.h1,
     color: Theme.light.colors.text,
+  },
+  addScoreButton: {
+    backgroundColor: Theme.light.colors.primary + '20', 
+    paddingHorizontal: 12, 
+    paddingVertical: 6, 
+    borderRadius: 16
+  },
+  addScoreText: {
+    color: Theme.light.colors.primary, 
+    fontWeight: 'bold'
+  },
+  heroWidget: {
+    backgroundColor: Theme.light.colors.surface,
+    padding: Theme.light.spacing.xl,
+    borderRadius: 16,
     marginBottom: Theme.light.spacing.xl,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  widgetTitle: {
+    ...Theme.light.typography.h3,
+    color: Theme.light.colors.text,
+    marginBottom: Theme.light.spacing.lg,
+    alignSelf: 'flex-start',
+  },
+  progressContainer: {
+    width: 150,
+    height: 150,
+    position: 'relative',
+  },
+  centerTextContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  centerText: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    color: Theme.light.colors.primary,
+  },
+  centerLabel: {
+    fontSize: 12,
+    color: Theme.light.colors.textSecondary,
+    marginTop: 4,
+  },
+  section: {
+    marginBottom: Theme.light.spacing.xl,
+  },
+  sectionTitle: {
+    ...Theme.light.typography.h3,
+    marginBottom: Theme.light.spacing.md,
+  },
+  subjectCard: {
+    backgroundColor: Theme.light.colors.surface,
+    borderRadius: 12,
+    padding: Theme.light.spacing.md,
+    marginBottom: Theme.light.spacing.md,
+    borderWidth: 1,
+    borderColor: Theme.light.colors.border,
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: Theme.light.spacing.md,
+  },
+  subjectName: {
+    ...Theme.light.typography.h3,
+    color: Theme.light.colors.text,
+  },
+  statusBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
+  },
+  statusText: {
+    fontSize: 12,
+    fontWeight: 'bold',
+  },
+  metricsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: Theme.light.spacing.md,
+  },
+  metricItem: {
+    alignItems: 'center',
+    flex: 1,
+  },
+  metricLabel: {
+    fontSize: 10,
+    color: Theme.light.colors.textSecondary,
+    marginBottom: 4,
+  },
+  metricValue: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: Theme.light.colors.text,
+  },
+  recommendationBox: {
+    backgroundColor: '#F8F9FA',
+    padding: Theme.light.spacing.sm,
+    borderRadius: 8,
+    borderLeftWidth: 3,
+    borderLeftColor: Theme.light.colors.primary,
+  },
+  recommendationText: {
+    fontSize: 13,
+    color: Theme.light.colors.textSecondary,
+    fontStyle: 'italic',
+    lineHeight: 18,
   },
   widget: {
     backgroundColor: Theme.light.colors.surface,
@@ -147,60 +283,6 @@ const styles = StyleSheet.create({
     marginBottom: Theme.light.spacing.lg,
     borderWidth: 1,
     borderColor: Theme.light.colors.border,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
-    position: 'relative',
-  },
-  widgetTitle: {
-    ...Theme.light.typography.h3,
-    color: Theme.light.colors.text,
-    marginBottom: Theme.light.spacing.md,
-  },
-  centerTextContainer: {
-    position: 'absolute',
-    top: 50,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  centerText: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: Theme.light.colors.primary,
-  },
-  priorityCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: Theme.light.spacing.md,
-    backgroundColor: Theme.light.colors.background,
-    borderRadius: 8,
-    marginBottom: Theme.light.spacing.sm,
-  },
-  rankBadge: {
-    backgroundColor: Theme.light.colors.primary,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
-    marginRight: Theme.light.spacing.md,
-  },
-  rankText: {
-    color: Theme.light.colors.surface,
-    fontWeight: 'bold',
-    fontSize: 12,
-  },
-  priorityName: {
-    flex: 1,
-    ...Theme.light.typography.body,
-    fontWeight: 'bold',
-  },
-  priorityScore: {
-    ...Theme.light.typography.caption,
-    color: Theme.light.colors.textSecondary,
   },
   recCard: {
     backgroundColor: '#F5F5FF',

@@ -78,6 +78,12 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
+    externalNativeBuild {
+        cmake {
+            buildStagingDirectory = "C:/Users/aswin/cxx/app"
+        }
+    }
+
     namespace "com.studyplannerapp"
     defaultConfig {
         applicationId "com.study.planner"

@@ -4,6 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Subject } from '../../types/api.types';
 import { useSubjects } from './hooks/useSubjects';
+import { usePerformanceReport } from '../performance/hooks/usePerformance';
 import { SubjectsStackParamList } from '../../navigation/types';
 import { useTheme } from '../../theme/useTheme';
 import { SkeletonCard } from '../../components/skeleton/SkeletonCard';
@@ -12,20 +13,21 @@ import { SubjectCard } from '../../components/common/SubjectCard';
 
 type NavigationProp = NativeStackNavigationProp<SubjectsStackParamList, 'SubjectsList'>;
 
+const SubjectListSkeleton = ({ count }: { count: number }) => (
+  <>
+    {Array(count).fill(0).map((_, i) => (
+      <SkeletonCard key={i} />
+    ))}
+  </>
+);
+
 export const SubjectsListScreen = () => {
   const navigation = useNavigation<NavigationProp>();
-  const { data: subjects, isLoading, isError, refetch } = useSubjects();
+  const { data: subjects, isLoading: subjectsLoading, isError, refetch } = useSubjects();
+  const { data: performanceReport, isLoading: performanceLoading } = usePerformanceReport();
   const { theme, typography, spacing } = useTheme();
 
-  const SubjectListSkeleton = ({ count }: { count: number }) => (
-    <>
-      {Array(count).fill(0).map((_, i) => (
-        <SkeletonCard key={i} />
-      ))}
-    </>
-  );
-
-  if (isLoading) {
+  if (subjectsLoading || performanceLoading) {
     return (
       <View style={[styles.container, { backgroundColor: theme.background, padding: spacing.lg }]}>
         <Text style={[typography.h1, { color: theme.text.primary, marginBottom: spacing.lg }]}>My Subjects</Text>
@@ -48,12 +50,16 @@ export const SubjectsListScreen = () => {
       <FlatList
         data={subjects}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <SubjectCard 
-            subject={item} 
-            onPress={() => navigation.navigate('SubjectDetail', { subjectId: item.id })} 
-          />
-        )}
+        renderItem={({ item }) => {
+          const perf = performanceReport?.subjectBreakdown.find(p => p.subjectId === item.id);
+          return (
+            <SubjectCard 
+              subject={item} 
+              performance={perf}
+              onPressDetail={() => navigation.navigate('SubjectDetail', { subjectId: item.id })} 
+            />
+          );
+        }}
         contentContainerStyle={{ paddingBottom: 100 }}
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={

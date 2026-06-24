@@ -13,10 +13,9 @@ interface SelectedFileType {
 }
 
 export const MaterialsScreen = () => {
-  // In a real app, subjectId comes from route params
-  // const route = useRoute<any>();
-  // const { subjectId } = route.params;
-  const subjectId = 'temp-subject-id';
+  // Connect actual subjectId from route params
+  const route = useRoute<any>();
+  const subjectId = route.params?.subjectId || 'fallback-subject-id';
   
   const [selectedFile, setSelectedFile] = useState<SelectedFileType | null>(null);
   const [title, setTitle] = useState('');
@@ -44,7 +43,8 @@ export const MaterialsScreen = () => {
       file: {
         uri: selectedFile.uri,
         name: selectedFile.name,
-        type: selectedFile.type
+        type: selectedFile.type,
+        size: selectedFile.size || undefined
       },
       title: title,
       subjectId: subjectId

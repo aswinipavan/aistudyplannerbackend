@@ -152,19 +152,16 @@ jest.mock('react-native-razorpay', () => ({
   },
 }));
 
-jest.mock('react-native-document-picker', () => ({
+jest.mock('@react-native-documents/picker', () => ({
   __esModule: true,
-  default: {
-    pick: jest.fn(),
-    pickMultiple: jest.fn(),
-    pickSingle: jest.fn(),
-  },
+  pick: jest.fn(() => Promise.resolve([{ uri: 'test-uri', name: 'test-name', type: 'test-type', size: 100 }])),
   types: {
-    allFiles: 'allFiles',
+    pdf: 'pdf',
     images: 'images',
+    video: 'video',
+    allFiles: 'allFiles',
     plainText: 'plainText',
     audio: 'audio',
-    pdf: 'pdf',
     zip: 'zip',
     csv: 'csv',
     doc: 'doc',
@@ -174,6 +171,10 @@ jest.mock('react-native-document-picker', () => ({
     ppt: 'ppt',
     pptx: 'pptx',
   },
+  errorCodes: {
+    OPERATION_CANCELED: 'OPERATION_CANCELED',
+  },
+  isErrorWithCode: jest.fn(() => false),
 }));
 
 jest.mock('react-native-image-picker', () => ({
@@ -259,3 +260,15 @@ jest.mock('react-native-svg', () => {
 
 // Mock other components if necessary
 jest.mock('react-native/Libraries/EventEmitter/NativeEventEmitter');
+
+jest.mock('react-native-skeleton-placeholder', () => {
+  const React = require('react');
+  const View = require('react-native').View;
+  const MockSkeletonPlaceholder = ({ children }) => {
+    return React.createElement('View', null, children);
+  };
+  MockSkeletonPlaceholder.Item = ({ children, ...props }) => {
+    return React.createElement('View', props, children);
+  };
+  return MockSkeletonPlaceholder;
+});

@@ -15,34 +15,25 @@ export interface VerifyPayload {
 
 export const subscriptionsApi = {
   createOrder: async (plan: 'monthly' | 'yearly'): Promise<OrderResponse> => {
-    // Mocking POST /api/subscriptions/order
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve({
-          orderId: `order_${Date.now()}`,
-          amount: plan === 'monthly' ? 49900 : 499900, // in paise
-          currency: 'INR',
-          keyId: 'rzp_test_mockkey12345',
-        });
-      }, 1000);
-    });
+    const planType = plan === 'monthly' ? 'PREMIUM_MONTHLY' : 'PREMIUM_YEARLY';
+    const response = await apiClient.post<any>('/api/subscriptions/order', { planType });
+    return response.data.data;
   },
 
   verifyPayment: async (data: VerifyPayload): Promise<{ success: boolean }> => {
-    // Mocking POST /api/subscriptions/verify
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve({ success: true });
-      }, 1000);
+    const response = await apiClient.post<any>('/api/subscriptions/verify', {
+      razorpayOrderId: data.razorpay_order_id,
+      razorpayPaymentId: data.razorpay_payment_id,
+      razorpaySignature: data.razorpay_signature
     });
+    const success = response.data.success || response.data.data?.status === 'SUCCESS' || response.data.data?.status === 'COMPLETED';
+    return { success };
   },
 
   getStatus: async (): Promise<{ isPremium: boolean }> => {
-    // Mocking GET /api/subscriptions/status
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve({ isPremium: true });
-      }, 500);
-    });
+    const response = await apiClient.get<any>('/api/subscriptions/status');
+    const subData = response.data.data;
+    const isPremium = subData && subData.planType !== 'FREE';
+    return { isPremium };
   }
 };

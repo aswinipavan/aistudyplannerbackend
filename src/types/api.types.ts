@@ -80,6 +80,12 @@ export interface SubjectPerformance {
   averageScore: number;
   marksHistory: Mark[];
   priority: number;
+  // Phase 1 Additions
+  status: 'Strong' | 'Average' | 'Weak';
+  priorityScore: number; // 0-100
+  aiRecommendation: string;
+  suggestedStudyHours: number;
+  confidenceScore: number; // 0-100
 }
 
 export interface PerformanceReport {
@@ -87,6 +93,11 @@ export interface PerformanceReport {
   subjectBreakdown: SubjectPerformance[];
   trend: 'improving' | 'declining' | 'stable';
   recommendations: string[];
+  aiReadinessScore: number; // 0-100
+  // Phase 2 Additions
+  academicScore: number;
+  studyEfficiencyScore: number;
+  attendancePercentage: number;
 }
 
 export interface SubscriptionStatus {
